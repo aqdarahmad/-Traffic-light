@@ -1,21 +1,35 @@
-module Moore_Model ( y_out, x_in, clock,
-reset);
-output y_out;
-input x_in;
-input clock, reset;
-reg [2: 0] state;
-parameter S0 = 2'b000, S1 = 2'b001, S2 =
-b010, S3 = 2'b011,S4=3'b100, S5=3'b101;'2
-always @ ( posedge clock, negedge reset)
-if (reset == 0) state <= S0;
+module Trafficlight(clk,redlight,oralight,grelight);
+output reg redlight,oralight,grelight;
+input clk;
+parameter redtime=9,orangetime=3,grellowtime=12;
+reg [3:0]state;
+reg [5:0]count;
+parameter s0=4'b0000,s1=4'b0001,s2=4'b0010;
+always@(posedge clk)
+count<=count+1;
+always@(posedge clk)
+case(state)
+s0: if(count==9) redlight<=1'b1;
 else
-case (state)
-S0: if (x_in) state <= S1; else state <= S0;
-S1: if (x_in) state <= S2; else state <= S0;
-S2: if (x_in) state <= S3; else state <= S0;
-S3: if (x_in) state <= S4; else state <= S0;
-S4: if (x_in) state <= S5; else state <= S0;
-S5: if (x_in) state <= S5; else state <= S0;
+begin
+grelight<=1'b0;oralight<=1'b0;
+count<=0;
+state<=s1;
+end
+s1 : if(count==3) oralight<=1'b1;
+else
+begin
+redlight<=1'b0;grelight<=1'b0;
+count<=1'b0;
+state<=s2;
+end
+s2 : if(count==12) grelight<=1'b1;
+else
+begin
+redlight<=1'b0;oralight<=1'b0;
+count<=1'b0;
+state<=s0;
+end
+default: state <=s0;
 endcase
-assign y_out = (state == S5);
 endmodule
